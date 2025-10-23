@@ -14,7 +14,7 @@ class LogoDataset(Dataset):
 
     def __getitem__(self, idx):
         image = self.images[idx].convert("RGB")
-        mask = self.masks[idx].convert("RGB")
+        mask = self.masks[idx].convert("L")
 
         if self.transform:
             image = self.transform(image)
