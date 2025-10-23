@@ -379,6 +379,8 @@ class U2NET(nn.Module):
 
         #stage 6
         hx6 = self.stage6(hx)
+        hx6up = _upsample_like(hx6,hx5)
+
         #decoder
         hx5d = self.stage5d(torch.cat((hx6up,hx5),1))
         hx5dup = _upsample_like(hx5d,hx4)
