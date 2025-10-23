@@ -31,7 +31,7 @@ def load_data(input_dir, mask_dir):
         mask_dir (str): Path to the directory of mask images.
 
     Returns:
-        tuple: A tuple containing training and validation data splits.
+        tuple: A tuple containing training, validation, and test data splits.
     """
     input_path = Path(input_dir)
     mask_path = Path(mask_dir)
@@ -52,6 +52,7 @@ def load_data(input_dir, mask_dir):
     images = [Image.open(p) for p in image_files]
     masks = [Image.open(p) for p in mask_files]
 
-    X_train, X_val, y_train, y_val = train_test_split(images, masks, test_size=0.2, random_state=42)
+    X_train_val, X_test, y_train_val, y_test = train_test_split(images, masks, test_size=0.15, random_state=42)
+    X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=0.1765, random_state=42) # 0.15 / 0.85 = 0.1765
 
-    return X_train, X_val, y_train, y_val
+    return X_train, X_val, X_test, y_train, y_val, y_test
