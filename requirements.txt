@@ -1,0 +1,8 @@
+Pillow
+torch
+torchvision
+rembg
+tqdm
+numpy
+scikit-learn
+onnxruntime
