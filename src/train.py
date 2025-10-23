@@ -12,8 +12,8 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 
 from data_loader import load_data, LogoDataset
-from zip_utils import unzip_data
 from u2net_model import U2NET
+
 
 def main():
     parser = argparse.ArgumentParser(description="Train a U2-Net model for logo detection.")
