@@ -12,8 +12,8 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 
 from data_loader import load_data, LogoDataset
-from zip_utils import unzip_data
 from u2net_model import U2NET
+
 
 def main():
     parser = argparse.ArgumentParser(description="Train a U2-Net model for logo detection.")
@@ -23,6 +23,7 @@ def main():
     parser.add_argument("--epochs", type=int, default=100, help="Number of training epochs.")
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size for training.")
     parser.add_argument("--learning_rate", type=float, default=0.001, help="Learning rate for the optimizer.")
+    parser.add_argument("--model_path", type=str, default="~/.u2net/u2net.pth", help="Path to the pre-trained model file.")
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
@@ -43,7 +44,7 @@ def main():
 
     # This will trigger the download of the model if it's not already cached.
     new_session("u2net")
-    model_path = os.path.expanduser("~/.u2net/u2net.pth")
+    model_path = os.path.expanduser(args.model_path)
     
     model = U2NET()
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=False))
