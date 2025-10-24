@@ -63,3 +63,34 @@ def composite_images(background: Image.Image, foreground: Image.Image) -> Image.
     """
     background.paste(foreground, (0, 0), foreground)
     return background
+
+def preprocess_image(image_path: str) -> Image.Image:
+    """
+    Loads, preprocesses, and returns an image.
+
+    - Handles alpha channels by flattening onto a white background.
+    - Converts to RGB.
+    - Resizes to 320x320.
+    - Handles corrupted images.
+
+    Args:
+        image_path: The path to the image file.
+
+    Returns:
+        A processed Pillow Image object, or None if the image is corrupt.
+    """
+    try:
+        image = Image.open(image_path)
+
+        if image.mode in ('RGBA', 'LA'):
+            background = Image.new('RGB', image.size, (255, 255, 255))
+            background.paste(image, (0, 0), image)
+            image = background
+
+        image = image.convert('RGB')
+        image = image.resize((320, 320), Image.Resampling.LANCZOS)
+        
+        return image
+    except Image.UnidentifiedImageError:
+        print(f"Warning: Corrupted image detected and skipped: {image_path}")
+        return None

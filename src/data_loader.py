@@ -2,6 +2,7 @@ from PIL import Image
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
+from src.image_utils import preprocess_image
 
 class LogoDataset(Dataset):
     def __init__(self, images, masks, transform=None):
@@ -13,7 +14,7 @@ class LogoDataset(Dataset):
         return len(self.images)
 
     def __getitem__(self, idx):
-        image = self.images[idx].convert("RGB")
+        image = self.images[idx] # Already preprocessed
         mask = self.masks[idx].convert("L")
 
         if self.transform:
@@ -24,7 +25,7 @@ class LogoDataset(Dataset):
 
 def load_data(input_dir, mask_dir):
     """
-    Loads images and masks from the specified directories.
+    Loads and preprocesses images and masks from the specified directories.
 
     Args:
         input_dir (str): Path to the directory of training images.
@@ -41,7 +42,6 @@ def load_data(input_dir, mask_dir):
 
     if len(image_files) != len(mask_files):
         print(f"Warning: Mismatched number of images and masks. Found {len(image_files)} images and {len(mask_files)} masks.")
-        # Use the intersection of filenames
         image_names = {p.name for p in image_files}
         mask_names = {p.name for p in mask_files}
         common_names = sorted(list(image_names.intersection(mask_names)))
@@ -49,8 +49,14 @@ def load_data(input_dir, mask_dir):
         image_files = [input_path / name for name in common_names]
         mask_files = [mask_path / name for name in common_names]
 
-    images = [Image.open(p) for p in image_files]
-    masks = [Image.open(p) for p in mask_files]
+    # Preprocess images and load masks, filtering out corrupted images
+    processed_data = [
+        (preprocess_image(img_path), Image.open(mask_path))
+        for img_path, mask_path in zip(image_files, mask_files)
+    ]
+    
+    images = [img for img, mask in processed_data if img is not None]
+    masks = [mask for img, mask in processed_data if img is not None]
 
     X_train, X_val, y_train, y_val = train_test_split(images, masks, test_size=0.15, random_state=42)
 
